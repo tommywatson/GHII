@@ -6,7 +6,7 @@
 # installed from https://www.raspberrypi.org/downloads/raspbian/
 # Ensure network connectivity and execute the following command:
 #
-#  curl https://github.com/tommywatson/GHII/blob/master/pi/speedup/install.txt | sudo bash
+#  curl https://raw.githubusercontent.com/tommywatson/GHII/master/pi/speedup/install.txt | sudo bash
 #
 
 clean() {
