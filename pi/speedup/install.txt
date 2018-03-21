@@ -2,7 +2,7 @@
 
 #
 # Instructions:
-# On a fresh install of Rapbian Jessie Lite
+# On a fresh install of Rapbian Stretch Lite
 # installed from https://www.raspberrypi.org/downloads/raspbian/
 # Ensure network connectivity and execute the following command:
 #
@@ -18,9 +18,26 @@ install() {
   clean
 }
 
+# Remove useless packages
+apt purge -y build-essential bluez bluez-firmware aptitude \
+             gcc gdb manpages manpages-dev avahi-daemon triggerhappy \
+             samba-common
+apt -y autoremove
+clean
+
+# Remove 100Mb swap, make it 1Mb
+dphys-swapfile swapoff
+rm -f /var/swap
+# Set 1Mb swap file
+echo CONF_SWAPSIZE=1 > /etc/dphys-swapfile
+# Create and turn on
+dphys-swapfile setup
+dphys-swapfile swapon
+
 # Update
 apt-get update
 apt-get -q -y upgrade
+clean
 
 # Install required software
 install rpi-update
@@ -53,6 +70,7 @@ mv /tmp/cmdline.txt /boot/cmdline.txt
 echo "KERNEL==\"lp[0-9]*\", SUBSYSTEM==\"usbmisc\",ATTRS{idVendor}==\"0a5f\", ATTRS{idProduct}==\"000a\",SYMLINK+=\"usblp0\"" > /etc/udev/rules.d/15-zebra.rules
 
 rpi-update
+clean
 
 echo;echo;echo Rebooting;echo;echo
 reboot
