@@ -1,0 +1,58 @@
+#!/bin/bash
+
+#
+# Instructions:
+# On a fresh install of Rapbian Jessie Lite
+# installed from https://www.raspberrypi.org/downloads/raspbian/
+# Ensure network connectivity and execute the following command:
+#
+#  curl https://github.com/tommywatson/GHII/blob/master/pi/speedup/install.txt | sudo bash
+#
+
+clean() {
+  rm -rf /var/cache/apt/archives/ &
+}
+
+install() {
+  apt-get install -y $*
+  clean
+}
+
+# Update
+apt-get update
+apt-get -q -y upgrade
+
+# Install required software
+install rpi-update
+install xorg xserver-xorg-video-fbturbo
+install chromium-browser
+install cups
+
+# Configure X
+sed -e 's/allowed_users=console/allowed_users=anybody/g' < /etc/X11/Xwrapper.config > /tmp/sed
+mv /tmp/sed /etc/X11/Xwrapper.config
+
+# Configure /etc/rc.local to start X
+grep -v exit < /etc/rc.local > /tmp/rc.local
+mv /tmp/rc.local /etc/rc.local
+echo "su -c startx pi" >> /etc/rc.local
+echo "exit 0" >> /etc/rc.local
+chmod +x /etc/rc.local
+
+# Fire up chromium
+echo "#!/bin/bash" > /home/pi/.xinitrc
+#echo "chromium-browser --incognito --kiosk http://tommywatson.com" >> /home/pi/.xinitrc
+echo "chromium-browser --incognito --kiosk http://192.168.88.5" >> /home/pi/.xinitrc
+chmod +x /home/pi/.xinitrc
+
+# Start quiet
+sed -e 's/rootwait/rootwait quiet splash/g' < /boot/cmdline.txt > /tmp/cmdline.txt
+mv /tmp/cmdline.txt /boot/cmdline.txt
+
+#printer
+echo "KERNEL==\"lp[0-9]*\", SUBSYSTEM==\"usbmisc\",ATTRS{idVendor}==\"0a5f\", ATTRS{idProduct}==\"000a\",SYMLINK+=\"usblp0\"" > /etc/udev/rules.d/15-zebra.rules
+
+rpi-update
+
+echo;echo;echo Rebooting;echo;echo
+reboot
