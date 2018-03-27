@@ -47,6 +47,7 @@ int i2c_read(int fd,uint8_t *data,uint32_t length) {
 
     if(data) {
         count=read(fd,data,length);
+#ifdef DEBUG
         if(count!=length) {
             fprintf(stderr,
                     "Read failed [%d:%d] %d:%s\n",
@@ -55,6 +56,7 @@ int i2c_read(int fd,uint8_t *data,uint32_t length) {
                     errno,
                     strerror(errno));
         }
+#endif
     }
     return count;
 }
@@ -101,8 +103,10 @@ float get_humidity(int fd) {
     if(i2c_write(fd,
                  cmd_rhumidity,
                  ARRAY_SIZE(cmd_rhumidity))==ARRAY_SIZE(cmd_rhumidity)) {
-        sleep(1);
-        if(i2c_read(fd,data,ARRAY_SIZE(data))==ARRAY_SIZE(data)) {
+        // while the unit is still sampling
+        while(i2c_read(fd,data,1)!=1) sleep(1);
+        // now read the next byte
+        if(i2c_read(fd,data+1,1)==1) {
             uint16_t code=(*data<<8)+*(data+1);
             temp=125*code/65536-6;
         }
@@ -153,7 +157,7 @@ int main(void) {
                         temp,
                         humidity);
                 system(cmd);
-                error(cmd);
+                fprintf(stderr,"%s",cmd);
                 sleep(60);
             }
         }
