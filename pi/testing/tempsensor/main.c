@@ -95,7 +95,7 @@ int i2c_open() {
     return fd;
 }
 
-/* get the humidity from the Si7021 */
+/* get the humidity from the Si7021, returns 0 on error */
 float get_humidity(int fd) {
     uint8_t data[2];
     float temp=0;
@@ -103,8 +103,8 @@ float get_humidity(int fd) {
     if(i2c_write(fd,
                  cmd_rhumidity,
                  ARRAY_SIZE(cmd_rhumidity))==ARRAY_SIZE(cmd_rhumidity)) {
-        // while the unit is still sampling
-        while(i2c_read(fd,data,1)!=1) sleep(1);
+        // while the unit is still sampling and less then 10 tries
+        for(uint8_t tries=0;tries<10&&i2c_read(fd,data,1)!=1;++tries,sleep(1));
         // now read the next byte
         if(i2c_read(fd,data+1,1)==1) {
             uint16_t code=(*data<<8)+*(data+1);
@@ -120,7 +120,7 @@ float get_humidity(int fd) {
     return temp;
 }
 
-/* get the temp from the Si7021 */
+/* get the temp from the Si7021, returns 0 on error */
 float get_temp(int fd) {
     uint8_t data[2];
     float temp=0;
