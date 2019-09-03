@@ -1,0 +1,7 @@
+ACTION!="add|change", GOTO="modeswitch_rules_end"
+SUBSYSTEM!="usb", ACTION!="add",, GOTO="modeswitch_rules_end"
+
+# Generic entry for most Huawei devices, excluding Android phones
+ATTRS{idVendor}=="12d1", ATTRS{manufacturer}!="Android", ATTR{bInterfaceNumber}=="00", ATTR{bInterfaceClass}=="08", RUN+="usb_modeswitch '%b/%k'"
+
+LABEL="modeswitch_rules_end"

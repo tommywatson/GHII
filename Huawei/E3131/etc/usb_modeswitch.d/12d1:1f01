@@ -1,0 +1,12 @@
+# Huawei E353 (3.se) and others
+# Switch from default mass storage device mode 12d1:1f01 to ...
+TargetVendor=0x12d1
+# WWAN mode 12d1:155e
+#TargetProduct=0x155e
+#MessageContent="55534243123456780000000000000011063000000100010000000000000000"
+# Broadband modem mode 12d1:1442
+TargetProduct=0x1442
+MessageContent="55534243000000000000000000000011060000000000000000000000000000"
+# "ethernet" mode
+#TargetProductList="14db,14dc"
+#HuaweiNewMode=1
